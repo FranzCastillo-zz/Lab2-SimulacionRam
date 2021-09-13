@@ -1,3 +1,12 @@
+/*
+
+    NOMBRE DEL ARCHIVO: Vista.java
+    PROGRAMADOR: Francisco Castillo
+    HISTORIAL DE MODIFICACION:
+        -Se han agregado los metodos:
+            mostrarMenu()
+
+*/
 import java.util.Scanner;
 
 public class Vista {

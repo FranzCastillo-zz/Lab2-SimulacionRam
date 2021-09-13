@@ -1,3 +1,12 @@
+/*
+
+    NOMBRE DEL ARCHIVO: Memoria.java
+    PROGRAMADOR: Francisco Castillo
+    HISTORIAL DE MODIFICACION:
+
+
+*/
+
 public class Memoria {
     private String tipo;
     private int capacidad; // en gb
