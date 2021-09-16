@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -56,6 +57,7 @@ public class Memoria {
             }
             
         }
+        cola = new LinkedList<>();
     }
     private void crearArchivoMemoria(int bloquesParam){
         try {
@@ -99,7 +101,6 @@ public class Memoria {
             crearArchivoMemoria(bloques);
         }
     }
-    
     public boolean expandirMemoria(){
         leerDatos();
         boolean posibleExpandir = false;
@@ -133,7 +134,6 @@ public class Memoria {
     public boolean programaValido(String programa){
         return p.getPrograma(programa) != "xd,-1,-1"; // 'xd' indica que el programa es invalido
     }
-    
     public boolean ingresarPrograma(String programa){ // En el archivo Memoria se vera como linea,nombre,ciclos
         leerDatos();
         String[] info = p.getPrograma(programa).split(","); // nombre,espacio,ciclos
@@ -170,7 +170,6 @@ public class Memoria {
         calcularPropiedades();
         return escrito;
     }
-
     public String[] getDatosRam(){ //tipo,gb totales, mb usados, mb disponibles
         String[] temp = new String[4];
         temp[0] = this.tipo;
@@ -179,7 +178,6 @@ public class Memoria {
         temp[3] = (this.megas - this.megasUsadas) + "";
         return temp;
     }
-
     public String[] getProgramasEnEjecucion(){
         leerDatos();
         List<String> programas = new ArrayList<>();
@@ -209,7 +207,6 @@ public class Memoria {
         }
         return temp;
     }
-
     public String getBloques(String programa){
         leerDatos();
         String temp = "";
@@ -227,8 +224,6 @@ public class Memoria {
             return programa +" no se encuentra en ejecucion.";
         }
     }
-
-
     private void reducirMemoria(int nuevaCapacidad){
         this.capacidad = nuevaCapacidad;
         calcularPropiedades();
@@ -287,9 +282,15 @@ public class Memoria {
             }
             i++;
         }
+        // MANDAR A COLA
+        String programa = cola.peek();
+        if(programa != null){
+            if(ingresarPrograma(programa)){
+                cola.poll();
+            }
+        }
         verificarReduccion();
     }
-
     public String[] getEstado(){
         leerDatos();
         List<String> programas = new ArrayList<>();
@@ -304,8 +305,26 @@ public class Memoria {
         temp = programas.toArray(temp);
         return temp;
     }
-
     public String getTipo(){
         return tipo;
+    }
+    public void mandarACola(String programa){
+        cola.add(p.getPrograma(programa));
+    }
+    public String[] getProgramasEnCola(){
+        String[] temp;
+        if(cola == null){
+            temp = new String[1];
+            temp[0] = "No se encuentran programas en la cola";
+            return temp;
+        }else{
+            temp = new String[cola.size()];
+            int i = 0;
+            for (String programa : cola) {
+                String nombre = programa.split(",")[0];
+                temp[i] = nombre;
+            }
+            return temp;
+        }
     }
 }

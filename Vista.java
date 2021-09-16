@@ -78,9 +78,11 @@ public class Vista {
             System.out.println("- " + string);
         }
     }
-    public void mostrarProgramasEnCola(String datos){
-        System.out.println("En la cola se encuentran actualmente:");
-        System.out.println(datos);
+    public void mostrarProgramasEnCola(String[] datos){
+        System.out.println("Estan en cola:");
+        for (String string : datos) {
+            System.out.println("- " + string);
+        }
     }
     public void mostrarBloquesDelPrograma(String programa, String bloques){
         System.out.println("Los bloques que usa "+ programa + " son: " + bloques);

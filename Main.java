@@ -41,13 +41,13 @@ public class Main{
                             if(m.getTipo() == "DDR"){ // Si es DDR
                                 if(!m.expandirMemoria()){ // Si no se puede expandir mas
                                     v.mandadoACola();
-                                    // MANDAR A COLA ************************************************
+                                    m.mandarACola(programa);
                                 }else{
                                     v.expandidoMemoria();
                                 }
                             }else{ // Es SDR
                                 v.mandadoACola();
-                                //Mandar a cola
+                                m.mandarACola(programa);
                             }
                         }
                     }else{
@@ -61,7 +61,7 @@ public class Main{
                     v.mostrarProgramasEnEjecucion(m.getProgramasEnEjecucion());
                 break;
                 case 5: //Programas en cola
-
+                    v.mostrarProgramasEnCola(m.getProgramasEnCola());
                 break;
                 case 6: // Espacios de X programa
                     String nombre = v.pedirPrograma();
