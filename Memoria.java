@@ -232,30 +232,41 @@ public class Memoria {
     private void reducirMemoria(int nuevaCapacidad){
         this.capacidad = nuevaCapacidad;
         calcularPropiedades();
-        for(int i = lineas.size() - 1; i > bloques; i++){
+        for(int i = lineas.size() - 1; i > bloques; i--){
             lineas.remove(i);
         }
+        try {
+            FileWriter w = new FileWriter("Memoria.txt");
+            for(int i = 0; i < bloques; i++) {
+                w.write(lineas.get(i) + "\n");
+            }
+            w.close();
+        }catch (IOException ie) {
+            System.out.println("Ocurrio un error, no se ha podido expandir el archivo Memoria.txt");
+        }
     }
-    private void verificarReduccion(){
-        if(tipo.equals("DDR")){
-            leerDatos();
-            int desde = 0;
-            int hasta = 0;
-            int i = memorias.length - 1;
-            for (int memoria : memorias) {
-                boolean reducir = true;
-                if(memoria != 4){
-                    desde = memorias[i - 1] * 1024 / 64;
-                    hasta = bloques;
-                    for(int j = desde; j < hasta && reducir; j++){
+    private void verificarReduccion(){   
+        int i = 0;
+        boolean reducir = true;
+        int desde, hasta;
+        for (int memoria : memorias) {
+            if(memoria == capacidad && memoria != 4){
+                desde = memorias[i] * 1024 / 64;
+                hasta = memorias[i - 1] * 1024 / 64;
+                for(int j = desde; j < hasta && reducir; j++){
+                    try{
                         if(!lineas.get(j).equals("vacio")){
                             reducir = false;
                         }
-                    }
-                    if(reducir){
-                        reducirMemoria(memoria);
+                    }catch(Exception e){
+                        continue;
                     }
                 }
+                if(reducir){
+                    reducirMemoria(memorias[i - 1]);
+                }
+            }else{
+                i++;
             }
         }
     }
