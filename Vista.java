@@ -9,7 +9,6 @@
         Se modifico la forma en la que se muestra el total, disponible y en uso de La RAM
 */
 import java.util.Scanner;
-
 public class Vista {
     private Scanner scan;
 
@@ -97,5 +96,24 @@ public class Vista {
     }
     public void programaNoValidO(){
         System.out.println("Se ha ingresado un programa no valido.");
+    }
+    public void mostrarEsado(String[] datos){
+        int i = 1;
+        for (String dato : datos) {
+            if(i % 16 != 0){ // 16 por la cantidad de bloques en 1 GB
+                System.out.print("|" + dato + "|\t");
+            }else{
+                System.out.println("|" + dato + "|");
+            }
+        }
+    }
+    public void expandidoMemoria(){
+        System.out.println("No se ha podido ingresar el programa por falta de memoria, por ser DDR se ha expandido. Pruebe de nuevo.");
+    }
+    public void programaIngresado(){
+        System.out.println("Se ha ingresado exitosamente.");
+    }
+    public void mandadoACola(){
+        System.out.println("La memoria no cuetna con suficiente almacenamiento. El programa ha sido mandado a la cola.");
     }
 }

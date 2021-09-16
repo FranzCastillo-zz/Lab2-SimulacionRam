@@ -1,5 +1,3 @@
-import javax.lang.model.util.ElementScanner14;
-
 /*
 
     NOMBRE DEL ARCHIVO: Main.java
@@ -35,8 +33,23 @@ public class Main{
                     }
                 break;
                 case 2: //Ejecutar un programa
-                    if(m.ingresarPrograma(v.pedirPrograma())){
-                        v.ingresadoConExito();
+                    String programa = v.pedirPrograma();    
+                    if(m.programaValido(programa)){
+                        if(m.ingresarPrograma(programa)){ //Si se ha podido ingresar el programa
+                            v.programaIngresado();
+                        }else{
+                            if(m.getTipo() == "DDR"){ // Si es DDR
+                                if(!m.expandirMemoria()){ // Si no se puede expandir mas
+                                    v.mandadoACola();
+                                    // MANDAR A COLA ************************************************
+                                }else{
+                                    v.expandidoMemoria();
+                                }
+                            }else{ // Es SDR
+                                v.mandadoACola();
+                                //Mandar a cola
+                            }
+                        }
                     }else{
                         v.programaNoValidO();
                     }
@@ -55,6 +68,7 @@ public class Main{
                     v.mostrarBloquesDelPrograma(nombre, m.getBloques(nombre));
                 break;
                 case 7: // Ver estado
+                v.mostrarEsado(m.getEstado());
                 break;
                 case 8: // Ciclo de reloj
                     m.hacerCiclo();

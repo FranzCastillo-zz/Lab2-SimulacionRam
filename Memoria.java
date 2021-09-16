@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 
 public class Memoria {
@@ -26,15 +27,15 @@ public class Memoria {
     private Programas p;
     final int[] memorias = {4, 8, 12, 16, 32, 64};
     List<String> lineas;
+    Queue<String> cola;
     
     public Memoria(String tipo, int capacidad){
+        p = new Programas();
         if(tipo.equals("DDR")){ // DDR
             this.tipo = tipo;
             this.capacidad = 4;
-            megas = this.capacidad * 1024;
-            bloques = megas / 64;
-            p = new Programas();
-            crearArchivoMemoria();
+            crearArchivoMemoria(this.capacidad * 1024 / 64);
+            calcularPropiedades();
         }else{ // SDR
             this.tipo = "SDR";
             boolean encontrado = false;
@@ -42,41 +43,42 @@ public class Memoria {
                 if(!encontrado){
                     if(version == capacidad){
                         this.capacidad = capacidad;
-                        megas = capacidad * 1024;
-                        bloques = megas / 64;
-                        p = new Programas();
-                        crearArchivoMemoria();
+                        crearArchivoMemoria(capacidad * 1024 / 64);
+                        calcularPropiedades();
                         encontrado = true;
                     }
                 }
             } // Si aun no se encontro
             if(!encontrado){
                 this.capacidad = 8;
-                megas = this.capacidad * 1024;
-                bloques = megas / 64;
-                p = new Programas();
-                crearArchivoMemoria();
+                crearArchivoMemoria(capacidad * 1024 / 64);
+                calcularPropiedades();
             }
             
         }
     }
-
-    private void crearArchivoMemoria(){
+    private void crearArchivoMemoria(int bloquesParam){
         try {
             File f = new File("Memoria.txt");
             FileWriter w = new FileWriter("Memoria.txt");
-            if (f.createNewFile()) {
-                for(int i = 0; i <= bloques; i++){
-                    w.write("vacio\n");
-                }
-            }else{
-                for(int i = 0; i < bloques; i++){
-                    w.write("vacio\n");
-                }
+            f.createNewFile();
+            for(int i = 0; i < bloquesParam; i++){
+                w.write("vacio\n");
             }
             w.close();
         }catch (IOException ie) {
             System.out.println("Ocurrio un error, no se ha podido crear el archivo Memoria.txt");
+        }
+    }
+    private void calcularPropiedades(){
+        this.megas = this.capacidad * 1024;
+        this.bloques = this.megas / 64;
+        this.megasUsadas = 0;
+        leerDatos();
+        for (String linea : lineas) {
+            if(!linea.equals("vacio")){
+                megasUsadas += 64;
+            }
         }
     }
     private void cambiarLineaMemoria(int numLinea, String datos){
@@ -86,7 +88,7 @@ public class Memoria {
             lines.set(numLinea, datos);
             Files.write(path, lines);
         }catch (IOException ie) {
-            crearArchivoMemoria();
+            crearArchivoMemoria(bloques);
         }
     }
     private void leerDatos(){
@@ -94,65 +96,87 @@ public class Memoria {
             Path path = Paths.get("Memoria.txt");
             lineas = Files.readAllLines(path);
         }catch(IOException e){
-            crearArchivoMemoria();
+            crearArchivoMemoria(bloques);
         }
     }
     
-
+    public boolean expandirMemoria(){
+        leerDatos();
+        boolean posibleExpandir = false;
+        int i = 0;
+        for (int memoria : memorias) {
+            if(memoria == capacidad && !posibleExpandir){
+                if(i != memorias.length){
+                    this.capacidad = memorias[i + 1];
+                    calcularPropiedades();
+                    try {
+                        FileWriter w = new FileWriter("Memoria.txt");
+                        int actual = (memorias[i] * 1024 / 64);
+                        for(int j = 0; j < actual; j++) {
+                            w.write(lineas.get(j) + "\n");
+                        }
+                        for(int j = actual; j < bloques; j++){
+                            w.write("vacio\n");
+                        }
+                        w.close();
+                        posibleExpandir = true;
+                    }catch (IOException ie) {
+                        System.out.println("Ocurrio un error, no se ha podido expandir el archivo Memoria.txt");
+                    }
+                }
+            }else{
+                i++;
+            }
+        }
+        return posibleExpandir;
+    }
+    public boolean programaValido(String programa){
+        return p.getPrograma(programa) != "xd,-1,-1"; // 'xd' indica que el programa es invalido
+    }
+    
     public boolean ingresarPrograma(String programa){ // En el archivo Memoria se vera como linea,nombre,ciclos
         leerDatos();
-        boolean exitoso = false;
-
         String[] info = p.getPrograma(programa).split(","); // nombre,espacio,ciclos
         String nombre = info[0];
         double espacio = Math.ceil(Double.parseDouble(info[1]) / 64); // mb → bloques
         String ciclos = info[2];
         boolean escrito = false;
-
-        //Verifica si ingreso un programa valido
-        if(!nombre.equals("xd")){
-            megasUsadas += (int)(64 * espacio); 
-            for(int i = 0; i < lineas.size() && !escrito; i++){
-                String lineaActual = lineas.get(i);
-                if(lineaActual.equals("vacio")){
-                    // Verifica si el espacio que se necesita es > 1
-                    if(espacio > 1){
-                        boolean posible = true;
-                        // Ve j espacios adelante para ver si es posible ingresarlo ahi
-                        for(int j = i; j <= i + espacio && posible; j++){  
-                            String jAdelante = lineas.get(j);
-                            if(!jAdelante.equals("vacio")){
-                                posible = false;
-                            }
+        for(int i = 0; i < lineas.size() && !escrito; i++){
+            String lineaActual = lineas.get(i);
+            if(lineaActual.equals("vacio")){
+                // Verifica si el espacio que se necesita es > 1
+                if(espacio > 1){
+                    // Ve j espacios adelante para ver si es posible ingresarlo ahi
+                    try{
+                        for(int j = i; j < i + espacio; j++){  
+                            lineas.get(j); //Si no existe la linea j (no hay espacio en la memoria) y da error
                         }
-                        // Si si fue posible, lo escribe.
-                        if(posible){
-                            for(int j = i; j < espacio + i; j++){
-                                String datos = j + "," + nombre + "," + ciclos;
-                                cambiarLineaMemoria(j, datos);
-                            }
-                            escrito = true;
-                            exitoso = true;
-                        }
-                    }else{ // Escribe en una linea el programa
-                        String datos = i + "," + nombre + "," + ciclos;
-                        cambiarLineaMemoria(i, datos);
-                        escrito = true;
-                        exitoso = true;
+                    }catch(Exception e){
+                        return false;
                     }
-                    
+                    // SI NO HIZO RETURN SE EJECUTA ESTO  
+                    for(int j = i; j < espacio + i; j++){
+                        String datos = j + "," + nombre + "," + ciclos;
+                        cambiarLineaMemoria(j, datos);
+                    }
+                    escrito = true;
+                }else{ // Escribe en una linea el programa
+                    String datos = i + "," + nombre + "," + ciclos;
+                    cambiarLineaMemoria(i, datos);
+                    escrito = true;
                 }
             }
         }
-        return exitoso;
+        calcularPropiedades();
+        return escrito;
     }
 
     public String[] getDatosRam(){ //tipo,gb totales, mb usados, mb disponibles
         String[] temp = new String[4];
-        temp[0] = tipo;
-        temp[1] = capacidad + "";
-        temp[2] = megasUsadas + "";
-        temp[3] = (megas - megasUsadas) + "";
+        temp[0] = this.tipo;
+        temp[1] = this.capacidad + "";
+        temp[2] = this.megasUsadas + "";
+        temp[3] = (this.megas - this.megasUsadas) + "";
         return temp;
     }
 
@@ -204,6 +228,37 @@ public class Memoria {
         }
     }
 
+
+    private void reducirMemoria(int nuevaCapacidad){
+        this.capacidad = nuevaCapacidad;
+        calcularPropiedades();
+        for(int i = lineas.size() - 1; i > bloques; i++){
+            lineas.remove(i);
+        }
+    }
+    private void verificarReduccion(){
+        if(tipo.equals("DDR")){
+            leerDatos();
+            int desde = 0;
+            int hasta = 0;
+            int i = memorias.length - 1;
+            for (int memoria : memorias) {
+                boolean reducir = true;
+                if(memoria != 4){
+                    desde = memorias[i - 1] * 1024 / 64;
+                    hasta = bloques;
+                    for(int j = desde; j < hasta && reducir; j++){
+                        if(!lineas.get(j).equals("vacio")){
+                            reducir = false;
+                        }
+                    }
+                    if(reducir){
+                        reducirMemoria(memoria);
+                    }
+                }
+            }
+        }
+    }
     public void hacerCiclo(){
         leerDatos();
         int i = 0;
@@ -218,8 +273,28 @@ public class Memoria {
                     nuevaLinea += numero + "";
                 }
                 cambiarLineaMemoria(i, nuevaLinea);
-                i++;
+            }
+            i++;
+        }
+        verificarReduccion();
+    }
+
+    public String[] getEstado(){
+        leerDatos();
+        List<String> programas = new ArrayList<>();
+        for (String linea : lineas) {
+            if(!linea.equals("vacio")){
+                programas.add(linea.split(",")[1]);
+            }else{
+                programas.add(linea);
             }
         }
+        String[] temp = new String[programas.size()];
+        temp = programas.toArray(temp);
+        return temp;
+    }
+
+    public String getTipo(){
+        return tipo;
     }
 }
