@@ -25,6 +25,10 @@ public class Vista {
     public void opcionINvalida(){
         System.out.println("Ha ingresado una opcion incorrecta.");
     }
+    
+    /** 
+     * @return int La opcion del menu seleccionada por el usuario
+     */
     public int mostrarMenu(){
         try{
             System.out.println("");
@@ -47,6 +51,10 @@ public class Vista {
         }
         
     }
+    
+    /** 
+     * @return String El tipo de RAM ingresada por el usuario (Cualquier String sin verificar)
+     */
     public String pedirTipoRam(){
         System.out.println("Ingrese el tipo de RAM que desea simular: (DDR o SDR)");
         return scan.nextLine().toUpperCase();
@@ -54,6 +62,10 @@ public class Vista {
     public void tipoInvalido(){
         System.out.println("Si ha ingresado una capacidad invalida de memoria para su SDR, se ha asignado 8 GB por defecto");;
     }
+    
+    /** 
+     * @return int El tamanio de su memoria (sin verificar)
+     */
     public int pedirTamanioMemoria(){
         System.out.println("Ingrese la capacidad de su SDR en GB: (4, 8, 12, 16, 32 o 64)");
         try{
@@ -65,25 +77,46 @@ public class Vista {
             return -1;
         }
     }
+    
+    /** 
+     * @return String el programa que desea ingresar
+     */
     public String pedirPrograma(){
         System.out.println("Ingrese el nombre del programa:");
         return scan.nextLine().toUpperCase();
     }
+    
+    /** 
+     * @param dato [capacidad en GB, mb en uso, mb disponibles]
+     */
     public void mostrarRamTotal(String[] dato){
         System.out.println("Su RAM "+ dato[0] +" cuenta con un total de: " + dato[1] + " GB en total (" + dato[2] + " mb en uso | " + dato[3] + " mb disponibles)");
     }
+    
+    /** 
+     * @param datos arreglo donde cada posicion es el nombre del programa
+     */
     public void mostrarProgramasEnEjecucion(String[] datos){
         System.out.println("Se estan ejecutando:");
         for (String string : datos) {
             System.out.println("- " + string);
         }
     }
+    
+    /** 
+     * @param datos arreglo donde cada posicion es el nombre del programa
+     */
     public void mostrarProgramasEnCola(String[] datos){
         System.out.println("Estan en cola:");
         for (String string : datos) {
             System.out.println("- " + string);
         }
     }
+    
+    /** 
+     * @param programa Programa al que se solicito el proceso
+     * @param bloques Los bloques que ocupa
+     */
     public void mostrarBloquesDelPrograma(String programa, String bloques){
         System.out.println("Los bloques que usa "+ programa + " son: " + bloques);
     }
@@ -99,6 +132,10 @@ public class Vista {
     public void programaNoValidO(){
         System.out.println("Se ha ingresado un programa no valido.");
     }
+    
+    /** 
+     * @param datos Los datos de los bloques ocupados
+     */
     public void mostrarEsado(String[] datos){
         int i = 1;
         for (String dato : datos) {

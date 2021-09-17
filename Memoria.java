@@ -59,6 +59,10 @@ public class Memoria {
         }
         cola = new LinkedList<>();
     }
+    
+    /** 
+     * @param bloquesParam Cuantos bloques seran creados para la memoria RAM
+     */
     private void crearArchivoMemoria(int bloquesParam){
         try {
             File f = new File("Memoria.txt");
@@ -83,6 +87,11 @@ public class Memoria {
             }
         }
     }
+    
+    /** 
+     * @param numLinea Numero de linea a cambiar
+     * @param datos Datos que seran colocados
+     */
     private void cambiarLineaMemoria(int numLinea, String datos){
         try{
             Path path = Paths.get("Memoria.txt");
@@ -101,6 +110,10 @@ public class Memoria {
             crearArchivoMemoria(bloques);
         }
     }
+    
+    /** 
+     * @return boolean Si se ha podido expandir la memoria
+     */
     public boolean expandirMemoria(){
         leerDatos();
         boolean posibleExpandir = false;
@@ -131,9 +144,19 @@ public class Memoria {
         }
         return posibleExpandir;
     }
+    
+    /** 
+     * @param programa El programa a verificar si es valido
+     * @return boolean Si es valido (true) o no (false)
+     */
     public boolean programaValido(String programa){
         return p.getPrograma(programa) != "xd,-1,-1"; // 'xd' indica que el programa es invalido
     }
+    
+    /** 
+     * @param Programa El programa que busca ingresar
+     * @return boolean si se ha logrado ingresr con exito (true) o no (false)
+     */
     public boolean ingresarPrograma(String programa){ // En el archivo Memoria se vera como linea,nombre,ciclos
         leerDatos();
         String[] info = p.getPrograma(programa).split(","); // nombre,espacio,ciclos
@@ -170,6 +193,10 @@ public class Memoria {
         calcularPropiedades();
         return escrito;
     }
+    
+    /** 
+     * @return String[] [tipo, gb totales, mb usados, mb disponibles]
+     */
     public String[] getDatosRam(){ //tipo,gb totales, mb usados, mb disponibles
         String[] temp = new String[4];
         temp[0] = this.tipo;
@@ -178,6 +205,10 @@ public class Memoria {
         temp[3] = (this.megas - this.megasUsadas) + "";
         return temp;
     }
+    
+    /** 
+     * @return String[] Arreglo con los nombres de programas en ejecucion
+     */
     public String[] getProgramasEnEjecucion(){
         leerDatos();
         List<String> programas = new ArrayList<>();
@@ -207,6 +238,11 @@ public class Memoria {
         }
         return temp;
     }
+    
+    /** 
+     * @param programa Programa del que se quieren obtener los bloques que ocuipa
+     * @return String Los bloques que contiene en formanto: x \n
+     */
     public String getBloques(String programa){
         leerDatos();
         String temp = "";
@@ -224,6 +260,10 @@ public class Memoria {
             return programa +" no se encuentra en ejecucion.";
         }
     }
+    
+    /** 
+     * @param nuevaCapacidad La capacidad a la que se reducira
+     */
     private void reducirMemoria(int nuevaCapacidad){
         this.capacidad = nuevaCapacidad;
         calcularPropiedades();
@@ -291,6 +331,10 @@ public class Memoria {
         }
         verificarReduccion();
     }
+    
+    /** 
+     * @return String[] El estado de cada bloque donde cada espacio del arreglo es que lo ocupa
+     */
     public String[] getEstado(){
         leerDatos();
         List<String> programas = new ArrayList<>();
@@ -305,12 +349,24 @@ public class Memoria {
         temp = programas.toArray(temp);
         return temp;
     }
+    
+    /** 
+     * @return String el tipo de memoria que es el RAM (DDR o SDR)
+     */
     public String getTipo(){
         return tipo;
     }
+    
+    /** 
+     * @param programa El programa que sera mandado a cola
+     */
     public void mandarACola(String programa){
         cola.add(p.getPrograma(programa));
     }
+    
+    /** 
+     * @return String[] Arreglo donde cada posicion es el nombre de los programas en cola
+     */
     public String[] getProgramasEnCola(){
         String[] temp;
         if(cola == null){

@@ -3,8 +3,6 @@
     NOMBRE DEL ARCHIVO: Programas.java
     PROGRAMADOR: Francisco Castillo
     HISTORIAL DE MODIFICACION:
-
-
 */
 
 import java.io.File;
@@ -45,6 +43,11 @@ public class Programas {
         }
     }
     
+    
+    /** 
+     * @param programa El programa del que se desea obtener informacion
+     * @return String La informacion del programa ("xd,-1,-1" en caso de programa invalido)
+     */
     public String getPrograma(String programa){
         try {
             Path path = Paths.get("Programas.txt");
